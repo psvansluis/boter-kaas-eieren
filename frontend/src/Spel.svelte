@@ -1,18 +1,28 @@
 <script lang="ts">
-  import * as Wasm from "./lib/wasm/rust_wasm";
-  import type { BoterKaasEieren } from "./lib/wasm/rust_wasm";
-  let { wasm }: { wasm: typeof Wasm } = $props();
-
-  const spel: BoterKaasEieren = $derived(wasm.speel_boter_kaas_eieren());
+  import type { Speelbaar } from "./lib/wasm";
+  import type * as Wasm from "./lib/wasm/rust_wasm";
+  const { wasm }: { wasm: Speelbaar } = $props();
+  const zetten: Wasm.Zet[] = $state([]);
+  const spel: Wasm.BoterKaasEieren = $derived(
+    wasm.speel_boter_kaas_eieren(zetten),
+  );
 </script>
 
 <div style="display: flex; justify-content: center;">
   <table class="bord">
     <tbody>
-      {#each spel.bord as rij}
+      {#each spel.bord as rij, rijIndex}
         <tr>
-          {#each rij as cel}
-            <td>{cel}</td>
+          {#each rij as cel, celIndex}
+            <td
+              onclick={() => {
+                zetten.push({
+                  x: celIndex,
+                  y: rijIndex,
+                  speler: spel.speler_met_beurt,
+                });
+              }}>{cel}</td
+            >
           {/each}
         </tr>
       {/each}
