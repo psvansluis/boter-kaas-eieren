@@ -1,10 +1,26 @@
 use serde::{Deserialize, Serialize};
+use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum Speler {
+    X,
+    O,
+}
+
+#[derive(Serialize, Deserialize, Copy, Clone, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum Cel {
+    Leeg,
+    Gespeeld(Speler),
+}
+
+#[derive(Serialize, Deserialize, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct BoterKaasEieren {
-    bord: [[char; 3]; 3],
-    speler_met_beurt: char,
+    bord: [[Cel; 3]; 3],
+    speler_met_beurt: Speler,
 }
 
 #[wasm_bindgen]
@@ -13,10 +29,9 @@ pub fn greet(name: &str) -> String {
 }
 
 #[wasm_bindgen]
-pub fn speel_boter_kaas_eieren() -> JsValue {
-    let spel = BoterKaasEieren {
-        bord: [[' '; 3]; 3],
-        speler_met_beurt: 'X',
-    };
-    serde_wasm_bindgen::to_value(&spel).unwrap()
+pub fn speel_boter_kaas_eieren() -> BoterKaasEieren {
+    BoterKaasEieren {
+        bord: [[Cel::Leeg; 3]; 3],
+        speler_met_beurt: Speler::X,
+    }
 }

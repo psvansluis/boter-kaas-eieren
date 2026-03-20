@@ -1,17 +1,13 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { loadWasm } from './lib/wasm';
-  let message = 'Loading...';
-
-  let spel = null;
-  onMount(async () => {
-    const wasm = await loadWasm();
-    message = wasm.greet('Svelte + WASM');
-    spel = wasm.speel_boter_kaas_eieren();
-  });
+  import { loadWasm } from "./lib/wasm";
+  import Spel from "./Spel.svelte";
+  const wasm = $state(loadWasm());
 </script>
 
 <main>
-  <h1>{message}</h1>
-  <p>JS: {JSON.stringify(spel)}</p>
+  {#await wasm}
+    <p>Spel start op...</p>
+  {:then loadedWasm}
+    <Spel wasm={loadedWasm} />
+  {/await}
 </main>
