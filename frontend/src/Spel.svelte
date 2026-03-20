@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Cel from "./Cel.svelte";
   import type { Speelbaar } from "./lib/wasm";
   import type * as Wasm from "./lib/wasm/rust_wasm";
   const { wasm }: { wasm: Speelbaar } = $props();
@@ -21,7 +22,7 @@
                   y: rijIndex,
                   speler: spel.speler_met_beurt,
                 });
-              }}>{cel}</td
+              }}><Cel {cel} /></td
             >
           {/each}
         </tr>
@@ -46,9 +47,5 @@
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
-  }
-
-  .bord td:hover {
-    background-color: #f0f0f0;
   }
 </style>

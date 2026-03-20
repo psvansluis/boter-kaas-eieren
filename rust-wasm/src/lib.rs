@@ -34,9 +34,24 @@ pub struct BoterKaasEieren {
 
 #[wasm_bindgen]
 pub fn speel_boter_kaas_eieren(zetten: Vec<Zet>) -> BoterKaasEieren {
-    console::log_1(&format!("Ontvangen zetten: {:?}", zetten).into());
+    let mut spel = nieuw_spel();
+    for zet in zetten {
+        speel_zet(&mut spel, zet);
+    }
+    spel
+}
+
+fn nieuw_spel() -> BoterKaasEieren {
     BoterKaasEieren {
         bord: [[Cel::Leeg; 3]; 3],
         speler_met_beurt: Speler::X,
     }
+}
+
+fn speel_zet(spel: &mut BoterKaasEieren, zet: Zet) {
+    spel.bord[zet.y][zet.x] = Cel::Gespeeld(zet.speler);
+    spel.speler_met_beurt = match zet.speler {
+        Speler::X => Speler::O,
+        Speler::O => Speler::X,
+    };
 }
