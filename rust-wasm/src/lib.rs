@@ -112,36 +112,47 @@ fn is_bord_vol(bord: &Bord) -> bool {
         .all(|rij| rij.iter().all(|cel| matches!(cel, Cel::Gespeeld(_))))
 }
 
-fn check_winnaar(bord: &Bord) -> Option<Speler> {
-    // Check rijen
-    for y in 0..DIMENSIE {
-        if let Cel::Gespeeld(speler) = bord[y][0] {
-            if (1..DIMENSIE).all(|x| bord[y][x] == Cel::Gespeeld(speler)) {
-                return Some(speler);
-            }
-        }
+pub fn winnende_lijnen(dimensie: usize) -> Vec<Vec<(usize, usize)>> {
+    let mut lines = Vec::new();
+
+    if dimensie == 0 {
+        return lines;
     }
 
-    // Check kolommen
-    for x in 0..DIMENSIE {
-        if let Cel::Gespeeld(speler) = bord[0][x] {
-            if (1..DIMENSIE).all(|y| bord[y][x] == Cel::Gespeeld(speler)) {
-                return Some(speler);
-            }
-        }
+    // Rijen
+    for y in 0..dimensie {
+        lines.push((0..dimensie).map(|x| (x, y)).collect());
     }
 
-    // Check diagonalen
-    if let Cel::Gespeeld(speler) = bord[0][0] {
-        if (1..DIMENSIE).all(|i| bord[i][i] == Cel::Gespeeld(speler)) {
+    // Kolommen
+    for x in 0..dimensie {
+        lines.push((0..dimensie).map(|y| (x, y)).collect());
+    }
+
+    // Diagonalen
+    lines.push((0..dimensie).map(|i| (i, i)).collect());
+    lines.push((0..dimensie).map(|i| (dimensie - 1 - i, i)).collect());
+
+    lines
+}
+
+fn winnaar_op_lijn(bord: &Bord, coords: &[(usize, usize)]) -> Option<Speler> {
+    let (x0, y0) = coords[0];
+    if let Cel::Gespeeld(speler) = bord[y0][x0] {
+        if coords
+            .iter()
+            .skip(1)
+            .all(|&(x, y)| bord[y][x] == Cel::Gespeeld(speler))
+        {
             return Some(speler);
         }
     }
-    if let Cel::Gespeeld(speler) = bord[0][DIMENSIE - 1] {
-        if (1..DIMENSIE).all(|i| bord[i][DIMENSIE - 1 - i] == Cel::Gespeeld(speler)) {
-            return Some(speler);
-        }
-    }
-
     None
+}
+
+fn check_winnaar(bord: &Bord) -> Option<Speler> {
+    winnende_lijnen(DIMENSIE)
+        .iter()
+        .filter_map(|line| winnaar_op_lijn(bord, line))
+        .next()
 }
