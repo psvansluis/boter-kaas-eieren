@@ -3,6 +3,7 @@ use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
 const DIMENSIE: usize = 3;
+pub type Bord = [[Cel; DIMENSIE]; DIMENSIE];
 
 #[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, Eq, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
@@ -37,7 +38,7 @@ pub struct Zet {
 #[derive(Serialize, Deserialize, Tsify)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct BoterKaasEieren {
-    pub bord: [[Cel; DIMENSIE]; DIMENSIE],
+    pub bord: Bord,
     pub spelstatus: Spelstatus,
 }
 
@@ -85,14 +86,62 @@ fn speel_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<BoterKaasEieren, Ongel
     }
     let mut nieuw_bord = spel.bord;
     nieuw_bord[zet.y][zet.x] = Cel::Gespeeld(zet.speler);
-    let nieuwe_speler = match zet.speler {
+    let volgende_speler = match zet.speler {
         Speler::X => Speler::O,
         Speler::O => Speler::X,
     };
+
+    let nieuw_spelstatus = bepaal_spelstatus(&nieuw_bord, volgende_speler);
+
     Ok(BoterKaasEieren {
         bord: nieuw_bord,
-        spelstatus: Spelstatus::SpelBezig {
-            speler_met_beurt: nieuwe_speler,
-        },
+        spelstatus: nieuw_spelstatus,
     })
+}
+
+fn bepaal_spelstatus(bord: &Bord, speler_met_beurt: Speler) -> Spelstatus {
+    match check_winnaar(&bord) {
+        Some(winnaar) => Spelstatus::SpelerWint { winnaar },
+        _ if is_bord_vol(&bord) => Spelstatus::Gelijkspel,
+        _ => Spelstatus::SpelBezig { speler_met_beurt },
+    }
+}
+
+fn is_bord_vol(bord: &Bord) -> bool {
+    bord.iter()
+        .all(|rij| rij.iter().all(|cel| matches!(cel, Cel::Gespeeld(_))))
+}
+
+fn check_winnaar(bord: &Bord) -> Option<Speler> {
+    // Check rijen
+    for y in 0..DIMENSIE {
+        if let Cel::Gespeeld(speler) = bord[y][0] {
+            if (1..DIMENSIE).all(|x| bord[y][x] == Cel::Gespeeld(speler)) {
+                return Some(speler);
+            }
+        }
+    }
+
+    // Check kolommen
+    for x in 0..DIMENSIE {
+        if let Cel::Gespeeld(speler) = bord[0][x] {
+            if (1..DIMENSIE).all(|y| bord[y][x] == Cel::Gespeeld(speler)) {
+                return Some(speler);
+            }
+        }
+    }
+
+    // Check diagonalen
+    if let Cel::Gespeeld(speler) = bord[0][0] {
+        if (1..DIMENSIE).all(|i| bord[i][i] == Cel::Gespeeld(speler)) {
+            return Some(speler);
+        }
+    }
+    if let Cel::Gespeeld(speler) = bord[0][DIMENSIE - 1] {
+        if (1..DIMENSIE).all(|i| bord[i][DIMENSIE - 1 - i] == Cel::Gespeeld(speler)) {
+            return Some(speler);
+        }
+    }
+
+    None
 }

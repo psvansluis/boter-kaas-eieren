@@ -15,3 +15,6 @@ tsify = "0.5.6"
 [dependencies.web-sys]
 version = "0.3.91"
 features = ["console"]
+
+[dev-dependencies]
+rstest = "0.26.1"
