@@ -62,10 +62,11 @@ fn is_bord_vol(bord: &Bord) -> bool {
         .all(|rij| rij.iter().all(|cel| matches!(cel, Cel::Gespeeld(_))))
 }
 
-type Coord = (usize, usize);
-type Lijn = Box<dyn Iterator<Item = Coord>>;
+type Coordinaat = (usize, usize);
+type Lijn = Box<dyn Iterator<Item = Coordinaat>>;
+type BoxedIterator<T> = Box<dyn Iterator<Item = T>>;
 
-pub fn winnende_lijnen(dimensie: usize) -> Box<dyn Iterator<Item = Lijn>> {
+pub fn winnende_lijnen(dimensie: usize) -> BoxedIterator<Lijn> {
     let rijen = (0..dimensie).map(move |y| Box::new((0..dimensie).map(move |x| (x, y))) as Lijn);
     let kolommen = (0..dimensie).map(move |x| Box::new((0..dimensie).map(move |y| (x, y))) as Lijn);
     let hoofddiagonaal = Box::new((0..dimensie).map(|i| (i, i))) as Lijn;
@@ -79,15 +80,12 @@ pub fn winnende_lijnen(dimensie: usize) -> Box<dyn Iterator<Item = Lijn>> {
     )
 }
 
-fn winnaar_op_lijn<I>(bord: &Bord, mut coords: I) -> Option<Speler>
-where
-    I: Iterator<Item = Coord>,
-{
-    let (x0, y0) = coords.next()?;
+fn winnaar_op_lijn(bord: &Bord, mut coordinaten: BoxedIterator<Coordinaat>) -> Option<Speler> {
+    let (x0, y0) = coordinaten.next()?;
     let Cel::Gespeeld(speler) = bord[y0][x0] else {
         return None;
     };
-    coords
+    coordinaten
         .all(|(x, y)| bord[y][x] == Cel::Gespeeld(speler))
         .then_some(speler)
 }
