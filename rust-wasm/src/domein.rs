@@ -13,35 +13,40 @@ pub fn nieuw_spel() -> BoterKaasEieren {
 }
 
 pub fn speel_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<BoterKaasEieren, OngeldigeZet> {
+    valideer_zet(spel, zet)?;
+
+    let mut nieuw_bord = spel.bord;
+    nieuw_bord[zet.y][zet.x] = Cel::Gespeeld(zet.speler);
+    let nieuw_spelstatus = bepaal_spelstatus(&nieuw_bord, volgende_speler(&zet.speler));
+
+    Ok(BoterKaasEieren {
+        bord: nieuw_bord,
+        spelstatus: nieuw_spelstatus,
+    })
+}
+
+fn valideer_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<(), OngeldigeZet> {
     if zet.x >= DIMENSIE || zet.y >= DIMENSIE {
         return Err(OngeldigeZet::OngeldigeCoordinaten);
     }
     if let Cel::Gespeeld(_) = spel.bord[zet.y][zet.x] {
         return Err(OngeldigeZet::CelBezet);
     }
-    match spel.spelstatus {
-        Spelstatus::SpelerWint { .. } | Spelstatus::Gelijkspel => {
-            return Err(OngeldigeZet::SpelAfgerond);
+    if let Spelstatus::SpelBezig { speler_met_beurt } = spel.spelstatus {
+        if zet.speler != speler_met_beurt {
+            return Err(OngeldigeZet::VerkeerdeSpeler);
         }
-        Spelstatus::SpelBezig { speler_met_beurt } => {
-            if zet.speler != speler_met_beurt {
-                return Err(OngeldigeZet::VerkeerdeSpeler);
-            }
-        }
+    } else {
+        return Err(OngeldigeZet::SpelAfgerond);
     }
-    let mut nieuw_bord = spel.bord;
-    nieuw_bord[zet.y][zet.x] = Cel::Gespeeld(zet.speler);
-    let volgende_speler = match zet.speler {
+    Ok(())
+}
+
+fn volgende_speler(speler: &Speler) -> Speler {
+    match speler {
         Speler::X => Speler::O,
         Speler::O => Speler::X,
-    };
-
-    let nieuw_spelstatus = bepaal_spelstatus(&nieuw_bord, volgende_speler);
-
-    Ok(BoterKaasEieren {
-        bord: nieuw_bord,
-        spelstatus: nieuw_spelstatus,
-    })
+    }
 }
 
 fn bepaal_spelstatus(bord: &Bord, speler_met_beurt: Speler) -> Spelstatus {
@@ -57,47 +62,38 @@ fn is_bord_vol(bord: &Bord) -> bool {
         .all(|rij| rij.iter().all(|cel| matches!(cel, Cel::Gespeeld(_))))
 }
 
-pub fn winnende_lijnen(dimensie: usize) -> Vec<Vec<(usize, usize)>> {
-    let mut lines = Vec::new();
+type Coord = (usize, usize);
+type Lijn = Box<dyn Iterator<Item = Coord>>;
 
-    if dimensie == 0 {
-        return lines;
-    }
+pub fn winnende_lijnen(dimensie: usize) -> Box<dyn Iterator<Item = Lijn>> {
+    let rijen = (0..dimensie).map(move |y| Box::new((0..dimensie).map(move |x| (x, y))) as Lijn);
+    let kolommen = (0..dimensie).map(move |x| Box::new((0..dimensie).map(move |y| (x, y))) as Lijn);
+    let hoofddiagonaal = Box::new((0..dimensie).map(|i| (i, i))) as Lijn;
+    let antidiagonaal = Box::new((0..dimensie).map(move |i| (i, dimensie - 1 - i))) as Lijn;
 
-    // Rijen
-    for y in 0..dimensie {
-        lines.push((0..dimensie).map(|x| (x, y)).collect());
-    }
-
-    // Kolommen
-    for x in 0..dimensie {
-        lines.push((0..dimensie).map(|y| (x, y)).collect());
-    }
-
-    // Diagonalen
-    lines.push((0..dimensie).map(|i| (i, i)).collect());
-    lines.push((0..dimensie).map(|i| (dimensie - 1 - i, i)).collect());
-
-    lines
+    Box::new(
+        rijen
+            .chain(kolommen)
+            .chain(std::iter::once(hoofddiagonaal))
+            .chain(std::iter::once(antidiagonaal)),
+    )
 }
 
-fn winnaar_op_lijn(bord: &Bord, coords: &[(usize, usize)]) -> Option<Speler> {
-    let (x0, y0) = coords[0];
-    if let Cel::Gespeeld(speler) = bord[y0][x0] {
-        if coords
-            .iter()
-            .skip(1)
-            .all(|&(x, y)| bord[y][x] == Cel::Gespeeld(speler))
-        {
-            return Some(speler);
-        }
-    }
-    None
+fn winnaar_op_lijn<I>(bord: &Bord, mut coords: I) -> Option<Speler>
+where
+    I: Iterator<Item = Coord>,
+{
+    let (x0, y0) = coords.next()?;
+    let Cel::Gespeeld(speler) = bord[y0][x0] else {
+        return None;
+    };
+    coords
+        .all(|(x, y)| bord[y][x] == Cel::Gespeeld(speler))
+        .then_some(speler)
 }
 
 fn check_winnaar(bord: &Bord) -> Option<Speler> {
     winnende_lijnen(DIMENSIE)
-        .iter()
-        .filter_map(|line| winnaar_op_lijn(bord, line))
+        .filter_map(|lijn| winnaar_op_lijn(bord, lijn))
         .next()
 }
