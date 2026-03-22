@@ -1,4 +1,5 @@
 use rstest::rstest;
+use rust_wasm::model::{Cel, OngeldigeZet, Speler, Spelstatus, Zet};
 use rust_wasm::*;
 
 #[test]
@@ -215,6 +216,50 @@ fn x_wint_diagonaal(#[case] coords: Vec<(usize, usize)>) {
     assert!(matches!(
         spel.spelstatus,
         Spelstatus::SpelerWint { winnaar: Speler::X }
+    ));
+}
+
+#[test]
+fn o_wint() {
+    let zetten = vec![
+        Zet {
+            x: 0,
+            y: 0,
+            speler: Speler::X,
+        },
+        Zet {
+            x: 1,
+            y: 0,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 0,
+            y: 1,
+            speler: Speler::X,
+        },
+        Zet {
+            x: 1,
+            y: 1,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 2,
+            y: 2,
+            speler: Speler::X,
+        },
+        Zet {
+            x: 1,
+            y: 2,
+            speler: Speler::O,
+        },
+    ];
+
+    let spel = speel_boter_kaas_eieren(zetten);
+    assert!(spel.is_ok());
+    let spel = spel.unwrap();
+    assert!(matches!(
+        spel.spelstatus,
+        Spelstatus::SpelerWint { winnaar: Speler::O }
     ));
 }
 
