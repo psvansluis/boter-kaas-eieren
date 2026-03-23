@@ -1,20 +1,47 @@
 use rstest::rstest;
-use rust_wasm::model::{Cel, OngeldigeZet, Speler, Spelstatus, Zet};
+use rust_wasm::model::{BoterKaasEieren, Cel, OngeldigeZet, Speler, Spelstatus, Zet};
+use rust_wasm::wasm_resultaat::WasmResultaat;
 use rust_wasm::*;
+
+fn assert_ok_en(
+    spel: WasmResultaat<BoterKaasEieren, OngeldigeZet>,
+    assertie: &dyn Fn(&BoterKaasEieren) -> (),
+) {
+    assert!(matches!(
+        spel,
+        rust_wasm::wasm_resultaat::WasmResultaat::Ok(_)
+    ));
+    let spel = match spel {
+        WasmResultaat::Ok(spel) => spel,
+        _ => unreachable!(),
+    };
+    assertie(&spel);
+}
+
+fn assert_err_en(spel: WasmResultaat<BoterKaasEieren, OngeldigeZet>, verwachte_fout: OngeldigeZet) {
+    assert!(matches!(
+        spel,
+        rust_wasm::wasm_resultaat::WasmResultaat::Err(_)
+    ));
+    let fout = match spel {
+        WasmResultaat::Err(fout) => fout,
+        _ => unreachable!(),
+    };
+    assert_eq!(fout, verwachte_fout);
+}
 
 #[test]
 fn nieuw_spel() {
     let spel = speel_boter_kaas_eieren(vec![]);
     let verwacht_bord = [[Cel::Leeg; 3]; 3];
-    assert!(spel.is_ok());
-    let spel = spel.unwrap();
-    assert!(matches!(
-        spel.spelstatus,
-        Spelstatus::SpelBezig {
-            speler_met_beurt: Speler::X
-        }
-    ));
-    assert_eq!(spel.bord, verwacht_bord);
+    let verwachte_spelstatus = Spelstatus::SpelBezig {
+        speler_met_beurt: Speler::X,
+    };
+    let assertie = |spel: &BoterKaasEieren| {
+        assert_eq!(spel.bord, verwacht_bord);
+        assert_eq!(spel.spelstatus, verwachte_spelstatus);
+    };
+    assert_ok_en(spel, &assertie);
 }
 
 #[test]
@@ -37,26 +64,25 @@ fn geldige_zetten() {
         },
     ];
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_ok());
-    let spel = spel.unwrap();
-    assert!(matches!(
-        spel.spelstatus,
-        Spelstatus::SpelBezig {
-            speler_met_beurt: Speler::O
-        }
-    ));
-    assert_eq!(
-        spel.bord,
+    let verwacht_bord = [
         [
-            [
-                Cel::Gespeeld(Speler::X),
-                Cel::Gespeeld(Speler::O),
-                Cel::Gespeeld(Speler::X)
-            ],
-            [Cel::Leeg; 3],
-            [Cel::Leeg; 3],
-        ]
-    );
+            Cel::Gespeeld(Speler::X),
+            Cel::Gespeeld(Speler::O),
+            Cel::Gespeeld(Speler::X),
+        ],
+        [Cel::Leeg; 3],
+        [Cel::Leeg; 3],
+    ];
+    let assertie = |spel: &BoterKaasEieren| {
+        assert_eq!(spel.bord, verwacht_bord);
+        assert_eq!(
+            spel.spelstatus,
+            Spelstatus::SpelBezig {
+                speler_met_beurt: Speler::O,
+            }
+        );
+    };
+    assert_ok_en(spel, &assertie);
 }
 
 #[test]
@@ -67,8 +93,8 @@ fn zet_buiten_bord() {
         speler: Speler::X,
     }];
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_err());
-    assert_eq!(spel.err().unwrap(), OngeldigeZet::OngeldigeCoordinaten);
+    let verwachte_fout = OngeldigeZet::OngeldigeCoordinaten;
+    assert_err_en(spel, verwachte_fout);
 }
 
 #[test]
@@ -86,8 +112,7 @@ fn zet_op_bezette_cel() {
         },
     ];
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_err());
-    assert_eq!(spel.err().unwrap(), OngeldigeZet::CelBezet);
+    assert_err_en(spel, OngeldigeZet::CelBezet);
 }
 
 #[test]
@@ -105,8 +130,7 @@ fn verkeerde_speler() {
         },
     ];
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_err());
-    assert_eq!(spel.err().unwrap(), OngeldigeZet::VerkeerdeSpeler);
+    assert_err_en(spel, OngeldigeZet::VerkeerdeSpeler);
 }
 
 #[rstest]
@@ -140,12 +164,13 @@ fn x_wint_verticaal(#[values(0, 1, 2)] kolom: usize) {
     ];
 
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_ok());
-    let spel = spel.unwrap();
-    assert!(matches!(
-        spel.spelstatus,
-        Spelstatus::SpelerWint { winnaar: Speler::X }
-    ));
+    let assertie = |spel: &BoterKaasEieren| {
+        assert!(matches!(
+            spel.spelstatus,
+            Spelstatus::SpelerWint { winnaar: Speler::X }
+        ));
+    };
+    assert_ok_en(spel, &assertie);
 }
 
 #[rstest]
@@ -179,12 +204,13 @@ fn x_wint_horizontaal(#[values(0, 1, 2)] rij: usize) {
     ];
 
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_ok());
-    let spel = spel.unwrap();
-    assert!(matches!(
-        spel.spelstatus,
-        Spelstatus::SpelerWint { winnaar: Speler::X }
-    ));
+    let assertie = |spel: &BoterKaasEieren| {
+        assert!(matches!(
+            spel.spelstatus,
+            Spelstatus::SpelerWint { winnaar: Speler::X }
+        ));
+    };
+    assert_ok_en(spel, &assertie);
 }
 
 #[rstest]
@@ -194,14 +220,14 @@ fn x_wint_diagonaal(#[case] coords: Vec<(usize, usize)>) {
     let mut zetten = Vec::new();
 
     for (i, (x, y)) in coords.iter().enumerate() {
-        // X move (diagonal)
+        // X plaatst zet diagonaal
         zetten.push(Zet {
             x: *x,
             y: *y,
             speler: Speler::X,
         });
 
-        // O move (some safe spot that doesn't interfere)
+        // O plaatst zet (een veilige plek die niet in de weg staat)
         if i < coords.len() - 1 {
             zetten.push(Zet {
                 x: (*x + 1) % 3,
@@ -211,12 +237,14 @@ fn x_wint_diagonaal(#[case] coords: Vec<(usize, usize)>) {
         }
     }
 
-    let spel = speel_boter_kaas_eieren(zetten).unwrap();
+    let spel = speel_boter_kaas_eieren(zetten);
 
-    assert!(matches!(
-        spel.spelstatus,
-        Spelstatus::SpelerWint { winnaar: Speler::X }
-    ));
+    assert_ok_en(spel, &|spel: &BoterKaasEieren| {
+        assert!(matches!(
+            spel.spelstatus,
+            Spelstatus::SpelerWint { winnaar: Speler::X }
+        ));
+    });
 }
 
 #[test]
@@ -255,12 +283,12 @@ fn o_wint() {
     ];
 
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_ok());
-    let spel = spel.unwrap();
-    assert!(matches!(
-        spel.spelstatus,
-        Spelstatus::SpelerWint { winnaar: Speler::O }
-    ));
+    assert_ok_en(spel, &|spel: &BoterKaasEieren| {
+        assert!(matches!(
+            spel.spelstatus,
+            Spelstatus::SpelerWint { winnaar: Speler::O }
+        ));
+    });
 }
 
 #[test]
@@ -313,9 +341,10 @@ fn gelijkspel() {
         },
     ];
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_ok());
-    let spel = spel.unwrap();
-    assert!(matches!(spel.spelstatus, Spelstatus::Gelijkspel));
+    let assertie = |spel: &BoterKaasEieren| {
+        assert_eq!(spel.spelstatus, Spelstatus::Gelijkspel);
+    };
+    assert_ok_en(spel, &assertie);
 }
 
 #[test]
@@ -354,6 +383,5 @@ fn zet_na_einde_spel() {
         },
     ];
     let spel = speel_boter_kaas_eieren(zetten);
-    assert!(spel.is_err());
-    assert_eq!(spel.err().unwrap(), OngeldigeZet::SpelAfgerond);
+    assert_err_en(spel, OngeldigeZet::SpelAfgerond);
 }
