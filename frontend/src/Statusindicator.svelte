@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Spelstatus } from "./lib/wasm/rust_wasm";
   import { verwerkSpelstatus } from "./lib/wasm";
-  const { spel: spelstatus }: { spel: Spelstatus } = $props();
+  const { spelstatus }: { spelstatus: Spelstatus } = $props();
   const bericht = $derived(
     verwerkSpelstatus(
       spelstatus,

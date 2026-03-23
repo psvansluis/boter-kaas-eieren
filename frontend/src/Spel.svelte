@@ -14,6 +14,6 @@
     <p>{spel.Err}</p>
   {:else if typeof spel === "object" && "Ok" in spel}
     <Bord spel={spel.Ok} speelZet={(zet) => zetten.push(zet)} />
-    <Statusindicator spel={spel.Ok.spelstatus} />
+    <Statusindicator spelstatus={spel.Ok.spelstatus} />
   {/if}
 </div>
