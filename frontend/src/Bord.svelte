@@ -2,17 +2,23 @@
   export type ZetVerwerker = (zet: Zet) => void;
   import type { BoterKaasEieren, Zet } from "./lib/wasm/rust_wasm";
   import Cel from "./Cel.svelte";
+  import { verwerkSpelstatus } from "./lib/wasm";
   const { spel, speelZet }: { spel: BoterKaasEieren; speelZet: ZetVerwerker } =
     $props();
 
   const handleClick = (x: number, y: number): void => {
-    if (typeof spel.spelstatus === "object" && "SpelBezig" in spel.spelstatus) {
-      speelZet({
-        x,
-        y,
-        speler: spel.spelstatus.SpelBezig.speler_met_beurt,
-      });
-    }
+    verwerkSpelstatus(
+      spel.spelstatus,
+      (_winnaar) => {},
+      () => {},
+      (speler_met_beurt) => {
+        speelZet({
+          x,
+          y,
+          speler: speler_met_beurt,
+        });
+      },
+    );
   };
 </script>
 
