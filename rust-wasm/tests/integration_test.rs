@@ -66,9 +66,9 @@ fn geldige_zetten() {
     let spel = speel_boter_kaas_eieren(zetten);
     let verwacht_bord = [
         [
-            Cel::Gespeeld(Speler::X),
-            Cel::Gespeeld(Speler::O),
-            Cel::Gespeeld(Speler::X),
+            Cel::Gespeeld { door: Speler::X },
+            Cel::Gespeeld { door: Speler::X },
+            Cel::Gespeeld { door: Speler::X },
         ],
         [Cel::Leeg; 3],
         [Cel::Leeg; 3],

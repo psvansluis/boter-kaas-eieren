@@ -1,4 +1,3 @@
-import type { WasmResultaat, Spelstatus, Speler } from "./wasm/rust_wasm";
 import init, * as wasm from "./wasm/rust_wasm";
 
 type Wasm = typeof wasm;
@@ -17,30 +16,24 @@ export async function loadWasm(): Promise<Speelbaar> {
   return wasm;
 }
 
-export function verwerkResultaat<T, E, O>(
-  resultaat: WasmResultaat<T, E>,
-  bijOk: (ok: T) => O,
-  bijErr: (err: E) => O,
-): O {
-  if ("Ok" in resultaat) {
-    return bijOk(resultaat.Ok);
-  } else {
-    return bijErr(resultaat.Err);
-  }
-}
+type Variant<T, K extends string> = Extract<T, { type: K }>;
 
-export function verwerkSpelstatus<O>(
-  spelstatus: Spelstatus,
-  bijSpelerWint: (winnaar: Speler) => O,
-  bijGelijkspel: () => O,
-  bijSpelBezig: (speler_met_beurt: Speler) => O,
+type DataVariant<T, K extends string> =
+  Variant<T, K> extends { data: infer D } ? D : void;
+
+type MatchHandlers<T extends { type: string }, O> = {
+  [K in T["type"]]: (value: DataVariant<T, K>) => O;
+};
+
+export function match<T extends { type: string }, O>(
+  value: T,
+  handlers: MatchHandlers<T, O>,
 ): O {
-  if (typeof spelstatus === "object" && "SpelerWint" in spelstatus) {
-    return bijSpelerWint(spelstatus.SpelerWint.winnaar);
-  } else if (spelstatus === "Gelijkspel") {
-    return bijGelijkspel();
-  } else if (typeof spelstatus === "object" && "SpelBezig" in spelstatus) {
-    return bijSpelBezig(spelstatus.SpelBezig.speler_met_beurt);
+  const handler = handlers[value.type as T["type"]];
+
+  if ("data" in value) {
+    return handler((value as any).data);
   }
-  throw new Error("Onbekende spelstatus");
+
+  return handler(undefined as any);
 }

@@ -3,6 +3,7 @@ use tsify::Tsify;
 
 #[derive(Serialize, Deserialize, Tsify, Debug, Eq, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[serde(tag = "type", content = "data")]
 pub enum WasmResultaat<T, E> {
     Ok(T),
     Err(E),

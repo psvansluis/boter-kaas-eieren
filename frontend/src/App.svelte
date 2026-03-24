@@ -5,6 +5,7 @@
 </script>
 
 <main>
+  <h1>Boter, Kaas en Eieren</h1>
   {#await wasm}
     <p>Spel start op...</p>
   {:then loadedWasm}

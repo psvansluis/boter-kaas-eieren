@@ -16,7 +16,7 @@ pub fn speel_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<BoterKaasEieren, O
     valideer_zet(spel, zet)?;
 
     let mut nieuw_bord = spel.bord;
-    nieuw_bord[zet.y][zet.x] = Cel::Gespeeld(zet.speler);
+    nieuw_bord[zet.y][zet.x] = Cel::Gespeeld { door: zet.speler };
     let nieuw_spelstatus = bepaal_spelstatus(&nieuw_bord, volgende_speler(&zet.speler));
 
     Ok(BoterKaasEieren {
@@ -29,7 +29,7 @@ fn valideer_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<(), OngeldigeZet> {
     if zet.x >= DIMENSIE || zet.y >= DIMENSIE {
         return Err(OngeldigeZet::OngeldigeCoordinaten);
     }
-    if let Cel::Gespeeld(_) = spel.bord[zet.y][zet.x] {
+    if let Cel::Gespeeld { .. } = spel.bord[zet.y][zet.x] {
         return Err(OngeldigeZet::CelBezet);
     }
     if let Spelstatus::SpelBezig { speler_met_beurt } = spel.spelstatus {
@@ -59,7 +59,7 @@ fn bepaal_spelstatus(bord: &Bord, speler_met_beurt: Speler) -> Spelstatus {
 
 fn is_bord_vol(bord: &Bord) -> bool {
     bord.iter()
-        .all(|rij| rij.iter().all(|cel| matches!(cel, Cel::Gespeeld(_))))
+        .all(|rij| rij.iter().all(|cel| matches!(cel, Cel::Gespeeld { .. })))
 }
 
 type Coordinaat = (usize, usize);
@@ -82,12 +82,12 @@ pub fn winnende_lijnen(dimensie: usize) -> BoxedIterator<Lijn> {
 
 fn winnaar_op_lijn(bord: &Bord, mut coordinaten: BoxedIterator<Coordinaat>) -> Option<Speler> {
     let (x0, y0) = coordinaten.next()?;
-    let Cel::Gespeeld(speler) = bord[y0][x0] else {
+    let Cel::Gespeeld { door } = bord[y0][x0] else {
         return None;
     };
     coordinaten
-        .all(|(x, y)| bord[y][x] == Cel::Gespeeld(speler))
-        .then_some(speler)
+        .all(|(x, y)| bord[y][x] == Cel::Gespeeld { door })
+        .then_some(door)
 }
 
 fn check_winnaar(bord: &Bord) -> Option<Speler> {

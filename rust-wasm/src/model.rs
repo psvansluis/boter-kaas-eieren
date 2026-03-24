@@ -7,6 +7,7 @@ pub type Bord = [[Cel; DIMENSIE]; DIMENSIE];
 
 #[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, Eq, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[serde(tag = "type", content = "data")]
 pub enum Speler {
     X,
     O,
@@ -14,13 +15,15 @@ pub enum Speler {
 
 #[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, Eq, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[serde(tag = "type", content = "data")]
 pub enum Cel {
     Leeg,
-    Gespeeld(Speler),
+    Gespeeld { door: Speler },
 }
 
 #[derive(Serialize, Deserialize, Tsify, Debug, Eq, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[serde(tag = "type", content = "data")]
 pub enum Spelstatus {
     SpelerWint { winnaar: Speler },
     Gelijkspel,
@@ -44,6 +47,7 @@ pub struct BoterKaasEieren {
 
 #[derive(Serialize, Deserialize, Tsify, Debug, Eq, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
+#[serde(tag = "type", content = "data")]
 pub enum OngeldigeZet {
     OngeldigeCoordinaten,
     CelBezet,

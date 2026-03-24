@@ -3,10 +3,10 @@
   const { cel }: { cel: Cel } = $props();
 </script>
 
-{#if cel === "Leeg"}
+{#if cel.type === "Leeg"}
   <div class="cel leeg">&nbsp;</div>
-{:else}
-  <div class="cel gespeeld">{cel.Gespeeld}</div>
+{:else if cel.type === "Gespeeld"}
+  <div class="cel gespeeld">{cel.data.door.type}</div>
 {/if}
 
 <style>
@@ -19,7 +19,7 @@
     font-size: 24px;
     font-weight: bold;
   }
-  .gespeeld:hover {
+  .leeg:hover {
     background-color: #f0f0f0;
   }
 </style>
