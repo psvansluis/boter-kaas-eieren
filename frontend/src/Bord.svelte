@@ -1,36 +1,31 @@
 <script lang="ts">
   export type ZetVerwerker = (zet: Zet) => void;
-  import type { BoterKaasEieren, Zet } from "./lib/wasm/rust_wasm";
+  import type {
+    BoterKaasEieren,
+    Zet,
+    Cel as WasmCel,
+  } from "./lib/wasm/rust_wasm";
   import Cel from "./Cel.svelte";
-  import { match } from "./lib/wasm";
+  import { ZetMapper } from "./zetmapper";
   const { spel, speelZet }: { spel: BoterKaasEieren; speelZet: ZetVerwerker } =
     $props();
 
-  const handleClick = (x: number, y: number): void => {
-    match(spel.spelstatus, {
-      SpelerWint: ({ winnaar }) => {},
-      Gelijkspel: () => {},
-      SpelBezig: ({ speler_met_beurt }) => {
-        speelZet({
-          x,
-          y,
-          speler: speler_met_beurt,
-        });
-      },
-    });
+  const handleClick = (cel: WasmCel, x: number, y: number): void => {
+    const zetOfFout = new ZetMapper(spel.spelstatus).mapZet(cel, x, y);
+    if (typeof zetOfFout === "string") {
+      console.warn(zetOfFout);
+    } else {
+      speelZet(zetOfFout);
+    }
   };
 </script>
 
 <table class="bord">
   <tbody>
-    {#each spel.bord as rij, rijIndex}
+    {#each spel.bord as rij, y}
       <tr>
-        {#each rij as cel, celIndex}
-          <td
-            onclick={() => {
-              handleClick(celIndex, rijIndex);
-            }}><Cel {cel} /></td
-          >
+        {#each rij as cel, x}
+          <td onclick={() => handleClick(cel, x, y)}><Cel {cel} /></td>
         {/each}
       </tr>
     {/each}
@@ -40,7 +35,7 @@
 <style>
   .bord {
     border-collapse: collapse;
-    margin: 20px 0;
+    margin: 0px auto;
   }
 
   .bord td {

@@ -1,5 +1,6 @@
 <script lang="ts">
   import Bord from "./Bord.svelte";
+  import Errorindicator from "./Errorindicator.svelte";
   import type { Speelbaar } from "./lib/wasm";
   import { match } from "./lib/wasm";
   import type {
@@ -24,10 +25,11 @@
 
 <div>
   {#if spel.type === "Err"}
-    <p>{spel.data}</p>
+    <Errorindicator error={spel.data} />
   {:else if spel.type === "Ok"}
     <Bord spel={spel.data} speelZet={(zet) => zetten.push(zet)} />
     <Statusindicator spelstatus={spel.data.spelstatus} />
-    <button onclick={() => (zetten.length = 0)}> Nieuw spel</button>
   {/if}
+  <button onclick={() => (zetten.length = 0)}>Nieuw spel</button>
+  <button onclick={() => zetten.pop()}>Ongedaan maken</button>
 </div>

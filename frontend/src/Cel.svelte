@@ -20,6 +20,6 @@
     font-weight: bold;
   }
   .leeg:hover {
-    background-color: #f0f0f0;
+    background-color: var(--accent);
   }
 </style>
