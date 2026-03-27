@@ -17,8 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🦀 Rust setup
-      - name: Setup Rust
+      - name: Setup Rust 🦀
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -37,10 +36,7 @@ jobs:
       - name: Build Rust WASM
         working-directory: rust-wasm
         run: |
-          wasm-pack build \
-            --target web \
-            --out-dir ../frontend/src/wasm \
-            --release
+          wasm-pack build --target web --out-dir ../frontend/src/lib/wasm --release
 
   build-frontend:
     needs: build-wasm
@@ -48,10 +44,11 @@ jobs:
 
     steps:
       - name: Verify wasm file exists
+        working-directory: frontend
         run: |
-          echo "Listing frontend/src/wasm:"
-          ls -R frontend/src/wasm
-          test -f frontend/src/wasm/rust_wasm.js || (echo "Missing wasm file!" && exit 1)
+          echo "Listing frontend/src/lib/wasm"
+          ls -R src
+          test -f src/lib/wasm/rust_wasm.js || (echo "Missing wasm file!" && exit 1)
 
       # 🌐 Node setup
       - name: Setup Node
