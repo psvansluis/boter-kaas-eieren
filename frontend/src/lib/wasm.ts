@@ -30,6 +30,6 @@ export function match<T extends { type: string }, O>(
   handlers: MatchHandlers<T, O>,
 ): O {
   const handler = handlers[value.type as T["type"]];
-  const arg = "data" in value ? (value as any).data : undefined;
-  return handler(arg);
+  const inner = "data" in value ? (value as any).data : undefined;
+  return handler(inner);
 }

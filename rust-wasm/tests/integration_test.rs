@@ -67,7 +67,7 @@ fn geldige_zetten() {
     let verwacht_bord = [
         [
             Cel::Gespeeld { door: Speler::X },
-            Cel::Gespeeld { door: Speler::X },
+            Cel::Gespeeld { door: Speler::O },
             Cel::Gespeeld { door: Speler::X },
         ],
         [Cel::Leeg; 3],
