@@ -12,4 +12,4 @@
   );
 </script>
 
-<p>{bericht}</p>
+<p class="status">{bericht}</p>

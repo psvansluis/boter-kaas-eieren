@@ -50,9 +50,9 @@ fn volgende_speler(speler: &Speler) -> Speler {
 }
 
 fn bepaal_spelstatus(bord: &Bord, speler_met_beurt: Speler) -> Spelstatus {
-    match check_winnaar(&bord) {
+    match check_winnaar(bord) {
         Some(winnaar) => Spelstatus::SpelerWint { winnaar },
-        _ if is_bord_vol(&bord) => Spelstatus::Gelijkspel,
+        _ if is_bord_vol(bord) => Spelstatus::Gelijkspel,
         _ => Spelstatus::SpelBezig { speler_met_beurt },
     }
 }

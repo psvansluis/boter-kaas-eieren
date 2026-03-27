@@ -23,10 +23,17 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Clippy
+        working-directory: rust-wasm
+        run: cargo clippy -- -D warnings
+
+      - name: Run Rust tests
+        working-directory: rust-wasm
+        run: cargo test --all --verbose
+
       - name: Install wasm-pack
         run: cargo install wasm-pack
 
-      # 🦀 Build WASM
       - name: Build Rust WASM
         working-directory: rust-wasm
         run: |

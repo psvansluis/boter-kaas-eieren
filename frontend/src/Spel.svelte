@@ -30,6 +30,10 @@
     <Bord spel={spel.data} speelZet={(zet) => zetten.push(zet)} />
     <Statusindicator spelstatus={spel.data.spelstatus} />
   {/if}
-  <button onclick={() => (zetten.length = 0)}>Nieuw spel</button>
-  <button onclick={() => zetten.pop()}>Ongedaan maken</button>
+  {#if zetten.length > 0}
+    <button onclick={() => zetten.pop()}>Ongedaan maken</button>
+  {/if}
+  {#if zetten.length > 1}
+    <button onclick={() => (zetten.length = 0)}>Nieuw spel</button>
+  {/if}
 </div>
