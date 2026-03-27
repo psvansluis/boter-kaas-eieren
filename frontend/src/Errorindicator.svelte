@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { match } from "./lib/wasm";
+  import { match } from "./lib/match";
   import type { OngeldigeZet } from "./lib/wasm/rust_wasm";
-
   const { error }: { error: OngeldigeZet } = $props();
-
   const bericht: string = $derived(
     match(error, {
       CelBezet: () => `Cel is al bezet`,

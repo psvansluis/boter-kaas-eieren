@@ -2,7 +2,8 @@
   import Bord from "./Bord.svelte";
   import Errorindicator from "./Errorindicator.svelte";
   import type { Speelbaar } from "./lib/wasm";
-  import { match } from "./lib/wasm";
+
+  import { match } from "./lib/match";
   import type {
     Zet,
     WasmResultaat,

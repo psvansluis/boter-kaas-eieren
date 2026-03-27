@@ -6,7 +6,7 @@
     Cel as WasmCel,
   } from "./lib/wasm/rust_wasm";
   import Cel from "./Cel.svelte";
-  import { mapZet } from "./mapZet";
+  import { mapZet } from "./lib/mapZet";
   const { spel, speelZet }: { spel: BoterKaasEieren; speelZet: ZetVerwerker } =
     $props();
 

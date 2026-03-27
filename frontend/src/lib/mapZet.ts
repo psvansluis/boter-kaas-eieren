@@ -1,5 +1,5 @@
-import type { Cel, Spelstatus, Zet } from "./lib/wasm/rust_wasm";
-import { match } from "./lib/wasm";
+import type { Cel, Spelstatus, Zet } from "./wasm/rust_wasm";
+import { match } from "./match";
 
 /**
  * Mapt een Cel naar een Zet, of geeft een foutmelding als de zet niet geldig is.

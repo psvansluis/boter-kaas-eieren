@@ -15,21 +15,3 @@ export async function loadWasm(): Promise<Speelbaar> {
   }
   return wasm;
 }
-
-type Variant<T, K extends string> = Extract<T, { type: K }>;
-
-type DataVariant<T, K extends string> =
-  Variant<T, K> extends { data: infer D } ? D : void;
-
-type MatchHandlers<T extends { type: string }, O> = {
-  [K in T["type"]]: (value: DataVariant<T, K>) => O;
-};
-
-export function match<T extends { type: string }, O>(
-  value: T,
-  handlers: MatchHandlers<T, O>,
-): O {
-  const handler = handlers[value.type as T["type"]];
-  const inner = "data" in value ? (value as any).data : undefined;
-  return handler(inner);
-}

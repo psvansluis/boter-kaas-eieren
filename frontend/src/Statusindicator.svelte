@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Spelstatus } from "./lib/wasm/rust_wasm";
-  import { match } from "./lib/wasm";
+  import { match } from "./lib/match";
   const { spelstatus }: { spelstatus: Spelstatus } = $props();
   const bericht = $derived(
     match(spelstatus, {
