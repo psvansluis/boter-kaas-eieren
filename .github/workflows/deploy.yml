@@ -38,17 +38,22 @@ jobs:
         run: |
           wasm-pack build --target web --out-dir ../frontend/src/lib/wasm --release
 
+      - name: Upload wasm artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm
+          path: frontend/src/lib/wasm
+
   build-frontend:
     needs: build-wasm
     runs-on: ubuntu-latest
 
     steps:
-      - name: Verify wasm file exists
-        working-directory: frontend
-        run: |
-          echo "Listing frontend/src/lib/wasm"
-          ls -R src
-          test -f src/lib/wasm/rust_wasm.js || (echo "Missing wasm file!" && exit 1)
+      - name: Download wasm artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm
+          path: frontend/src/lib/wasm
 
       # 🌐 Node setup
       - name: Setup Node
