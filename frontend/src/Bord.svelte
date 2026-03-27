@@ -6,12 +6,12 @@
     Cel as WasmCel,
   } from "./lib/wasm/rust_wasm";
   import Cel from "./Cel.svelte";
-  import { ZetMapper } from "./zetmapper";
+  import { mapZet } from "./mapZet";
   const { spel, speelZet }: { spel: BoterKaasEieren; speelZet: ZetVerwerker } =
     $props();
 
   const handleClick = (cel: WasmCel, x: number, y: number): void => {
-    const zetOfFout = new ZetMapper(spel.spelstatus).mapZet(cel, x, y);
+    const zetOfFout = mapZet(spel.spelstatus, cel, x, y);
     if (typeof zetOfFout === "string") {
       console.warn(zetOfFout);
     } else {
@@ -31,20 +31,3 @@
     {/each}
   </tbody>
 </table>
-
-<style>
-  .bord {
-    border-collapse: collapse;
-    margin: 0px auto;
-  }
-
-  .bord td {
-    width: 60px;
-    height: 60px;
-    border: 2px solid #333;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-</style>

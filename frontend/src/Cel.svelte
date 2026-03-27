@@ -8,18 +8,3 @@
 {:else if cel.type === "Gespeeld"}
   <div class="cel gespeeld">{cel.data.door.type}</div>
 {/if}
-
-<style>
-  .cel {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-  }
-  .leeg:hover {
-    background-color: var(--accent);
-  }
-</style>

@@ -99,3 +99,49 @@ button {
   padding: 8px 16px;
   cursor: pointer;
 }
+
+table.bord {
+  border-collapse: collapse;
+  margin: 0px auto;
+}
+
+.bord td {
+  width: 60px;
+  height: 60px;
+  border: 2px solid #333;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#app {
+  width: 80wv;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.cel {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.leeg:hover {
+  background-color: var(--accent);
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}

@@ -15,10 +15,3 @@
 </script>
 
 <p class="error">{bericht}</p>
-
-<style>
-  .error {
-    color: red;
-    font-weight: bold;
-  }
-</style>
