@@ -10,7 +10,7 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  build-wasm:
     runs-on: ubuntu-latest
 
     steps:
@@ -42,6 +42,17 @@ jobs:
             --out-dir ../frontend/src/wasm \
             --release
 
+  build-frontend:
+    needs: build-wasm
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify wasm file exists
+        run: |
+          echo "Listing frontend/src/wasm:"
+          ls -R frontend/src/wasm
+          test -f frontend/src/wasm/rust_wasm.js || (echo "Missing wasm file!" && exit 1)
+
       # 🌐 Node setup
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -69,7 +80,7 @@ jobs:
           path: frontend/dist
 
   deploy:
-    needs: build
+    needs: build-frontend
     runs-on: ubuntu-latest
 
     environment:
