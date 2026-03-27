@@ -1,16 +1,16 @@
+use core::iter::once;
+
 use crate::{
     model::{Bord, BoterKaasEieren, Cel, OngeldigeZet, Speler, Spelstatus, Zet},
     DIMENSIE,
 };
 
-pub fn nieuw_spel() -> BoterKaasEieren {
-    BoterKaasEieren {
-        bord: [[Cel::Leeg; DIMENSIE]; DIMENSIE],
-        spelstatus: Spelstatus::SpelBezig {
-            speler_met_beurt: Speler::X,
-        },
-    }
-}
+pub const NIEUW_SPEL: BoterKaasEieren = BoterKaasEieren {
+    bord: [[Cel::Leeg; DIMENSIE]; DIMENSIE],
+    spelstatus: Spelstatus::SpelBezig {
+        speler_met_beurt: Speler::X,
+    },
+};
 
 pub fn speel_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<BoterKaasEieren, OngeldigeZet> {
     valideer_zet(spel, zet)?;
@@ -42,7 +42,7 @@ fn valideer_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<(), OngeldigeZet> {
     Ok(())
 }
 
-fn volgende_speler(speler: &Speler) -> Speler {
+const fn volgende_speler(speler: &Speler) -> Speler {
     match speler {
         Speler::X => Speler::O,
         Speler::O => Speler::X,
@@ -75,8 +75,8 @@ pub fn winnende_lijnen(dimensie: usize) -> BoxedIterator<Lijn> {
     Box::new(
         rijen
             .chain(kolommen)
-            .chain(std::iter::once(hoofddiagonaal))
-            .chain(std::iter::once(antidiagonaal)),
+            .chain(once(hoofddiagonaal))
+            .chain(once(antidiagonaal)),
     )
 }
 
@@ -91,7 +91,5 @@ fn winnaar_op_lijn(bord: &Bord, mut coordinaten: BoxedIterator<Coordinaat>) -> O
 }
 
 fn check_winnaar(bord: &Bord) -> Option<Speler> {
-    winnende_lijnen(DIMENSIE)
-        .filter_map(|lijn| winnaar_op_lijn(bord, lijn))
-        .next()
+    winnende_lijnen(DIMENSIE).find_map(|lijn| winnaar_op_lijn(bord, lijn))
 }
