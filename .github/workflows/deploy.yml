@@ -10,7 +10,7 @@ permissions:
   id-token: write
 
 jobs:
-  build-wasm:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -38,22 +38,9 @@ jobs:
         run: |
           wasm-pack build --target web --out-dir ../frontend/src/lib/wasm --release
 
-      - name: Upload wasm artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wasm
-          path: frontend/src/lib/wasm
-
-  build-frontend:
-    needs: build-wasm
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download wasm artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: wasm
-          path: frontend/src/lib/wasm
+      - name: Verify wasm file exists
+        run: |
+          test -f frontend/src/lib/wasm/rust_wasm.js || (echo "Missing wasm file!" && exit 1)
 
       # 🌐 Node setup
       - name: Setup Node
@@ -61,7 +48,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: ${{github.workspace}}/frontend/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       # 🌐 Install deps
       - name: Install frontend dependencies
@@ -82,7 +69,7 @@ jobs:
           path: frontend/dist
 
   deploy:
-    needs: build-frontend
+    needs: build
     runs-on: ubuntu-latest
 
     environment:
