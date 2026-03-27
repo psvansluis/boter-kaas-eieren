@@ -3,7 +3,6 @@
   --sand-light: #f5ead2;
   --adobe: #c46a3a;
   --adobe-dark: #8c3b1f;
-  --adobe-dark-transparent: rgba(140, 59, 31, 0.15);
 
   --turquoise: #2f9c95;
   --cactus: #5f7d4e;
@@ -11,7 +10,6 @@
 
   --text: #4a3f35;
   --text-h: #2c241d;
-  --bg: var(--sand-light);
   --border: #d6c3a3;
   --code-bg: #efe4c9;
 
@@ -33,7 +31,7 @@
   letter-spacing: 0.2px;
 
   color: var(--text);
-  background: var(--bg);
+  background-color: var(--adobe-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
@@ -61,8 +59,6 @@
 
 body {
   margin: 0;
-  background: radial-gradient(circle at top, var(--sand-light), var(--sand));
-  background-image: url(./assets/background.png);
 }
 
 h1 {
@@ -128,19 +124,22 @@ button:hover {
   margin: 0 auto;
   text-align: center;
   border-inline: 2px solid var(--border);
-  border-radius: var(--radius);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background-color: var(--adobe-dark-transparent);
-  backdrop-filter: blur(5px);
-}
+  background-image: url(./assets/background.png);
+  background-color: var(--sand-light);
 
-@media (min-width: 400px) {
-  #app {
+  @media (min-width: 400px) {
     width: 80vw;
-    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+  }
+
+  @media (min-height: 500px) {
+    margin: 5svh auto;
+    min-height: 90svh;
+    border-radius: var(--radius);
   }
 }
 
@@ -163,6 +162,14 @@ button:hover {
   cursor: pointer;
 
   transition: all 0.15s ease;
+
+  @media (min-width: 360px) {
+    width: 80px;
+  }
+
+  @media (min-height: 450px) {
+    height: 80px;
+  }
 }
 
 .leeg:hover {
