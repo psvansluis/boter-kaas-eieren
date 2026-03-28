@@ -107,7 +107,7 @@ code {
   border-radius: 6px;
 }
 
-button {
+button.resetter {
   font-family: var(--serif);
   color: var(--text);
 
@@ -121,7 +121,7 @@ button {
   transition: all 0.2s ease;
 }
 
-button:hover {
+button.resetter:hover {
   background: var(--accent-bg);
   border-color: var(--accent);
   transform: translateY(-1px);
@@ -172,14 +172,15 @@ button:hover {
   align-items: center;
   justify-content: center;
 
+  font-family: var(--serif);
   font-size: 24px;
   font-weight: bold;
 
   background: var(--surface);
-  border: 2px solid var(--primary);
+  border: 2px solid var(--accent-border);
+
   border-radius: var(--radius);
 
-  box-shadow: var(--shadow);
   cursor: pointer;
 
   transition: all 0.15s ease;
@@ -193,10 +194,15 @@ button:hover {
   }
 }
 
-.leeg:hover {
+.speelbaar:hover {
   background: var(--surface-hover);
   color: var(--text-inverse);
-  transform: scale(1.05);
+  transform: scale(1.1);
+}
+
+.onspeelbaar {
+  cursor: not-allowed;
+  border: 2px solid var(--primary);
 }
 
 .error {

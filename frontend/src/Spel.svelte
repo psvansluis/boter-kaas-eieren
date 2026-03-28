@@ -32,9 +32,12 @@
     <Statusindicator spelstatus={spel.data.spelstatus} />
   {/if}
   {#if zetten.length > 0}
-    <button onclick={() => zetten.pop()}>Ongedaan maken</button>
+    <button class="resetter" onclick={() => zetten.pop()}>Ongedaan maken</button
+    >
   {/if}
   {#if zetten.length > 1}
-    <button onclick={() => (zetten.length = 0)}>Nieuw spel</button>
+    <button class="resetter" onclick={() => (zetten.length = 0)}
+      >Nieuw spel</button
+    >
   {/if}
 </div>

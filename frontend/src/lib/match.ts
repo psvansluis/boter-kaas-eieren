@@ -1,7 +1,7 @@
-type Variant<T, K extends string> = Extract<T, { type: K }>;
-type DataVariant<T, K extends string> =
+export type Variant<T, K extends string> = Extract<T, { type: K }>;
+export type DataVariant<T, K extends string> =
   Variant<T, K> extends { data: infer D } ? D : void;
-type MatchHandlers<T extends { type: string }, O> = {
+export type MatchHandlers<T extends { type: string }, O> = {
   [K in T["type"]]: (value: DataVariant<T, K>) => O;
 };
 
