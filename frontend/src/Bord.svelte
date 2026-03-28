@@ -16,33 +16,26 @@
     speelZet: ZetVerwerker;
   } = $props();
 
-  const bordLengte = $derived(spel.bord.length);
-
-  const toetsEffecten: Record<string, () => void> = {
-    ArrowUp: () => {
-      focusedY = (focusedY - 1 + bordLengte) % bordLengte;
-    },
-    ArrowDown: () => {
-      focusedY = (focusedY + 1) % bordLengte;
-    },
-    ArrowLeft: () => {
-      focusedX = (focusedX - 1 + bordLengte) % bordLengte;
-    },
-    ArrowRight: () => {
-      focusedX = (focusedX + 1) % bordLengte;
-    },
-    Enter: () => {
-      buttons[focusedY]?.[focusedX]?.click();
-    },
-    " ": () => {
-      buttons[focusedY]?.[focusedX]?.click();
-    },
-  };
-
   let focusedX = $state(0);
   let focusedY = $state(0);
+  let knoppen: HTMLButtonElement[][] = [];
 
-  let buttons: HTMLButtonElement[][] = [];
+  const bordLengte = $derived(spel.bord.length);
+  const knopMetFocus = $derived(knoppen[focusedY]?.[focusedX]);
+
+  const beweegFocus = (dx: number, dy: number) => {
+    focusedX = (focusedX + dx + bordLengte) % bordLengte;
+    focusedY = (focusedY + dy + bordLengte) % bordLengte;
+  };
+
+  const toetsEffecten: Record<string, () => void> = {
+    ArrowUp: () => beweegFocus(0, -1),
+    ArrowDown: () => beweegFocus(0, 1),
+    ArrowLeft: () => beweegFocus(-1, 0),
+    ArrowRight: () => beweegFocus(1, 0),
+    Enter: () => knopMetFocus?.click(),
+    " ": () => knopMetFocus?.click(),
+  };
 
   const verwerkKlik = (resultaat: ReturnType<typeof mapZet>): (() => void) =>
     match(resultaat, {
@@ -50,14 +43,13 @@
         focusedX = zet.x;
         focusedY = zet.y;
         speelZet(zet);
-        buttons[focusedY]?.[focusedX]?.focus();
       },
       Err: () => () => {},
     });
 
   const registreerKnop = (x: number, y: number) => (el: HTMLButtonElement) => {
-    if (!buttons[y]) buttons[y] = [];
-    buttons[y][x] = el;
+    if (!knoppen[y]) knoppen[y] = [];
+    knoppen[y][x] = el;
   };
 
   const onkeydown = (e: KeyboardEvent) => {
@@ -65,19 +57,10 @@
     if (handler) {
       e.preventDefault();
       handler();
-      buttons[focusedY]?.[focusedX]?.focus();
     }
   };
 
-  onMount(() => {
-    buttons[focusedY]?.[focusedX]?.focus();
-  });
-
-  $effect(() => {
-    // Refocus na renderen, bijvoorbeeld na een zet
-    console.log("Effect: refocus op", focusedX, focusedY);
-    buttons[focusedY]?.[focusedX]?.focus();
-  });
+  $effect(() => knopMetFocus?.focus());
 </script>
 
 <table class="bord" role="grid" {onkeydown}>
