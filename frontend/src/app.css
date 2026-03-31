@@ -76,6 +76,7 @@
 
     --shadow:
       rgba(0, 0, 0, 0.5) 0 10px 20px -5px, rgba(0, 0, 0, 0.3) 0 4px 8px -2px;
+    background-image: url(./assets/background.png);
   }
 }
 
@@ -93,10 +94,6 @@ h1 {
     font-size: 36px;
     margin: 20px 0;
   }
-}
-
-p {
-  margin: 0;
 }
 
 code {
@@ -146,8 +143,11 @@ button.actieknop {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background-image: url(./assets/background.png);
   background-color: var(--bg-app);
+
+  @media not (prefers-color-scheme: dark) {
+    background-image: url(./assets/background.png);
+  }
 
   @media (min-width: 400px) {
     width: 80vw;
