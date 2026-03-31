@@ -8,7 +8,10 @@ cargo test
 echo compiling Rust to Wasm
 wasm-pack build --target web --out-dir ../frontend/src/lib/wasm --dev
 
-echo "serving frontend"
+echo "validating TypeScript"
 cd ../frontend
 npm ci
+npm run check
+
+echo "serving frontend"
 npm run dev
