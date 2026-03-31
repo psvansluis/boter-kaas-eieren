@@ -4,19 +4,10 @@ Dit is boter kaas en eieren, met domeinlogica in Rust compileerd naar WebAssembl
 
 Het doel van dit project is om beter inzicht te krijgen in de integratie van Rust WebAssembly in een webproject.
 
-Compileer Rust als volgt:
+## Development workflow
 
-```bash
-cd ./rust-wasm
-wasm-pack build \
-            --target web \
-            --out-dir ../frontend/src/wasm \
-            --release
-```
+Draai `./dev.sh` om Rust te valideren, te compileren, en de frontend te draaien.
 
-Compileer de frontend als volgt (voor development):
+## Release workflow
 
-```bash
-cd ./frontend
-npm run dev
-```
+De repo bevat een volledige Github Actions CI/CD pipeline.
