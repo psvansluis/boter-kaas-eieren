@@ -4,16 +4,14 @@
   import Cel from "./Cel.svelte";
   import { mapZet } from "./lib/mapZet";
   import { match } from "./lib/match";
-  import { onMount } from "svelte";
-
-  export type ZetVerwerker = (zet: Zet) => void;
+  import type { ZettenUpdater } from "./Spel.svelte";
 
   const {
     spel,
-    speelZet,
+    updateZetten,
   }: {
     spel: BoterKaasEieren;
-    speelZet: ZetVerwerker;
+    updateZetten: ZettenUpdater;
   } = $props();
 
   let focusedX = $state(0);
@@ -42,7 +40,7 @@
       Ok: (zet) => () => {
         focusedX = zet.x;
         focusedY = zet.y;
-        speelZet(zet);
+        updateZetten((zetten) => [...zetten, zet]);
       },
       Err: () => () => {},
     });

@@ -1,4 +1,6 @@
 <script lang="ts">
+  export type ZettenTransformatie = (z: Zet[]) => Zet[];
+  export type ZettenUpdater = (fn: ZettenTransformatie) => void;
   import Bord from "./Bord.svelte";
   import Errorindicator from "./Errorindicator.svelte";
   import type { Speelbaar } from "./lib/wasm";
@@ -11,11 +13,15 @@
     OngeldigeZet,
   } from "./lib/wasm/rust_wasm";
   import Statusindicator from "./Statusindicator.svelte";
+  import Actiepaneel from "./Actiepaneel.svelte";
   const { wasm }: { wasm: Speelbaar } = $props();
-  const zetten: Zet[] = $state([]);
+  let zetten: Zet[] = $state([]);
   const spel: WasmResultaat<BoterKaasEieren, OngeldigeZet> = $derived(
     wasm.speel_boter_kaas_eieren(zetten),
   );
+  const updateZetten: ZettenUpdater = (fn) => {
+    zetten = fn(zetten);
+  };
   $effect(() =>
     match(spel, {
       Err: console.error,
@@ -24,20 +30,12 @@
   );
 </script>
 
-<div>
+<section class="spel" aria-label="Boter kaas en eieren spel">
   {#if spel.type === "Err"}
     <Errorindicator error={spel.data} />
   {:else if spel.type === "Ok"}
-    <Bord spel={spel.data} speelZet={(zet) => zetten.push(zet)} />
+    <Bord spel={spel.data} {updateZetten} />
     <Statusindicator spelstatus={spel.data.spelstatus} />
   {/if}
-  {#if zetten.length > 0}
-    <button class="resetter" onclick={() => zetten.pop()}>Ongedaan maken</button
-    >
-  {/if}
-  {#if zetten.length > 1}
-    <button class="resetter" onclick={() => (zetten.length = 0)}
-      >Nieuw spel</button
-    >
-  {/if}
-</div>
+  <Actiepaneel {zetten} {updateZetten} />
+</section>

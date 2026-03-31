@@ -107,24 +107,21 @@ code {
   border-radius: 6px;
 }
 
-button.resetter {
+button.actieknop {
   font-family: var(--serif);
   color: var(--text);
 
   background: var(--surface);
-  border: 2px solid var(--accent-border);
+
   border-radius: var(--radius);
+  align-items: center;
+  justify-content: center;
 
   padding: 10px 18px;
+  margin: 10px 8px;
   cursor: pointer;
 
   transition: all 0.2s ease;
-}
-
-button.resetter:hover {
-  background: var(--accent-bg);
-  border-color: var(--accent);
-  transform: translateY(-1px);
 }
 
 .bord {
@@ -194,14 +191,18 @@ button.resetter:hover {
   }
 }
 
+.speelbaar {
+  border: 2px solid var(--accent-border);
+}
+
 .speelbaar:hover {
-  background: var(--surface-hover);
-  color: var(--text-inverse);
+  background: var(--accent-bg);
+  border-color: var(--accent);
   transform: scale(1.1);
 }
 
 .onspeelbaar {
-  cursor: not-allowed;
+  cursor: initial;
   border: 2px solid var(--primary);
 }
 
@@ -213,4 +214,17 @@ button.resetter:hover {
 .status {
   font-size: 20px;
   margin: 16px 0;
+}
+
+.sneltoets {
+  border: 2px solid var(--border);
+  font-size: 12px;
+  padding: 5px 9px;
+  margin: 5px 4px;
+
+  border-radius: var(--radius);
+}
+
+.tip {
+  display: none;
 }
