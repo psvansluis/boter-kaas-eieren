@@ -5,12 +5,18 @@ use crate::{
     DIMENSIE,
 };
 
-pub const NIEUW_SPEL: BoterKaasEieren = BoterKaasEieren {
+const NIEUW_SPEL: BoterKaasEieren = BoterKaasEieren {
     bord: [[Cel::Leeg; DIMENSIE]; DIMENSIE],
     spelstatus: Spelstatus::SpelBezig {
         speler_met_beurt: Speler::X,
     },
 };
+
+pub fn speel_zetten(zetten: &Vec<Zet>) -> Result<BoterKaasEieren, OngeldigeZet> {
+    zetten
+        .into_iter()
+        .try_fold(NIEUW_SPEL, |spel, zet| speel_zet(&spel, &zet))
+}
 
 pub fn speel_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<BoterKaasEieren, OngeldigeZet> {
     valideer_zet(spel, zet)?;
@@ -42,7 +48,7 @@ fn valideer_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<(), OngeldigeZet> {
     Ok(())
 }
 
-const fn volgende_speler(speler: &Speler) -> Speler {
+pub const fn volgende_speler(speler: &Speler) -> Speler {
     match speler {
         Speler::X => Speler::O,
         Speler::O => Speler::X,

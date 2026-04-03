@@ -30,7 +30,7 @@ pub enum Spelstatus {
     SpelBezig { speler_met_beurt: Speler },
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug)]
+#[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, PartialEq)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct Zet {
     pub x: usize,
