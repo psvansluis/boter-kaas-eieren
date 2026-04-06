@@ -12,10 +12,10 @@ const NIEUW_SPEL: BoterKaasEieren = BoterKaasEieren {
     },
 };
 
-pub fn speel_zetten(zetten: &Vec<Zet>) -> Result<BoterKaasEieren, OngeldigeZet> {
+pub fn speel_zetten(zetten: &[Zet]) -> Result<BoterKaasEieren, OngeldigeZet> {
     zetten
-        .into_iter()
-        .try_fold(NIEUW_SPEL, |spel, zet| speel_zet(&spel, &zet))
+        .iter()
+        .try_fold(NIEUW_SPEL, |spel, zet| speel_zet(&spel, zet))
 }
 
 pub fn speel_zet(spel: &BoterKaasEieren, zet: &Zet) -> Result<BoterKaasEieren, OngeldigeZet> {
