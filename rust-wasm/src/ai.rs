@@ -12,8 +12,8 @@ const STRATEGIEEN: &[StrategieFn] = &[
     winnende_zetten,
     voorkom_winnende_zetten,
     vorkende_zetten,
-    // |s| Box::new(voorkom_vorkende_zetten(s)),
-    // |s| Box::new(midden(s)),
+    voorkom_vorkende_zetten,
+    midden,
     // |s| Box::new(tegenovergestelde_hoek(s)),
     // |s| Box::new(lege_hoek(s)),
     // |s| Box::new(lege_zijde(s)),
@@ -26,16 +26,15 @@ pub fn perfecte_zetten(spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_
             let mut zetten = strategie(spel).peekable();
             zetten.peek().is_some().then_some(zetten)
         })
-        // Als er geen enkele zet mogelijk is (bijv. gelijkspel), geven we een lege iterator
         .map(|it| Box::new(it) as Box<dyn Iterator<Item = Zet>>)
+        // Als er geen enkele zet mogelijk is (bijv. gelijkspel), geven we een lege iterator
         .unwrap_or_else(|| Box::new(empty()))
 }
 
 fn winnende_zetten(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Zet> + '_> {
-    Box::new(speelbare_zetten(spel).filter(|zet| {
-        let spel_na_zet = speel_zet(spel, zet).expect("valide zet");
-        matches!(spel_na_zet.spelstatus, Spelstatus::SpelerWint { .. })
-    }))
+    filter_op_resultaat(spel, |s| {
+        matches!(s.spelstatus, Spelstatus::SpelerWint { .. })
+    })
 }
 
 fn voorkom_winnende_zetten(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Zet> + '_> {
@@ -43,32 +42,16 @@ fn voorkom_winnende_zetten(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Ze
 }
 
 fn vorkende_zetten(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Zet> + '_> {
-    Box::new(speelbare_zetten(spel).filter(move |zet| {
-        voorkom_winnende_zetten(&speel_zet(spel, zet).expect("valide zet"))
-            .nth(1)
-            .is_some()
-    }))
+    filter_op_resultaat(spel, |s| voorkom_winnende_zetten(s).nth(1).is_some())
 }
 
-// fn voorkom_vorkende_zetten(_spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_ {
-//     // if the opponent has moves that create a fork, return the moves that block it
-//     Vec::new()
-// }
+fn voorkom_vorkende_zetten(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Zet> + '_> {
+    Box::new(voorkom_zetten(spel, vorkende_zetten))
+}
 
-// fn midden(_spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_ {
-//     // if the middle cell is empty, return the move that plays there
-//     match _spel.bord[1][1] {
-//         crate::model::Cel::Leeg => vec![Zet {
-//             x: 1,
-//             y: 1,
-//             speler: match _spel.spelstatus {
-//                 Spelstatus::SpelBezig { speler_met_beurt } => speler_met_beurt,
-//                 _ => unreachable!(),
-//             },
-//         }],
-//         crate::model::Cel::Gespeeld { .. } => Vec::new(),
-//     }
-// }
+fn midden(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Zet> + '_> {
+    Box::new(speelbare_zetten(spel).filter(|zet| zet.x == 1 && zet.y == 1))
+}
 
 // fn tegenovergestelde_hoek(_spel: &BoterKaasEieren) -> Vec<Zet> {
 //     // if the opponent is in a corner, play the opposite corner
@@ -112,5 +95,18 @@ fn voorkom_zetten(
                 speler: huidige_speler,
             })
             .collect::<Vec<_>>()
+    }))
+}
+
+fn filter_op_resultaat<P>(
+    spel: &BoterKaasEieren,
+    predicaat: P,
+) -> Box<dyn Iterator<Item = Zet> + '_>
+where
+    P: Fn(&BoterKaasEieren) -> bool + 'static,
+{
+    Box::new(speelbare_zetten(spel).filter(move |zet| {
+        let spel_na_zet = speel_zet(spel, zet).expect("valide zet");
+        predicaat(&spel_na_zet)
     }))
 }
