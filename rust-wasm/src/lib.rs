@@ -21,12 +21,12 @@ pub fn speel_boter_kaas_eieren(zetten: Vec<Zet>) -> WasmResultaat<BoterKaasEiere
 }
 
 #[wasm_bindgen]
-pub fn suggereer_zet(zetten: Vec<Zet>) -> Option<Zet> {
-    let spel = speel_zetten(&zetten).ok()?;
-
-    // for now take the first move from perfecte_zetten,
-    // but in the future we should pick one at random
-    perfecte_zetten(&spel).into_iter().next()
+pub fn suggereer_zetten(zetten: Vec<Zet>) -> Vec<Zet> {
+    let spel = match speel_zetten(&zetten) {
+        Ok(s) => s,
+        Err(_) => return vec![],
+    };
+    perfecte_zetten(&spel).collect()
 }
 
 pub fn speelbare_zetten(spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_ {

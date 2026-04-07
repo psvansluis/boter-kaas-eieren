@@ -1,6 +1,6 @@
 use rust_wasm::{
     model::{Speler, Zet},
-    suggereer_zet,
+    suggereer_zetten,
 };
 
 #[test]
@@ -33,8 +33,8 @@ fn onspeelbaar_spel_heeft_geen_suggesties() {
         },
     ];
 
-    let suggestie = suggereer_zet(zetten);
-    assert!(suggestie.is_none());
+    let suggestie = suggereer_zetten(zetten);
+    assert_eq!(suggestie.len(), 0);
 }
 
 #[test]
@@ -62,14 +62,14 @@ fn winnende_zet_wordt_gesuggereerd() {
         },
     ];
 
-    let suggestie = suggereer_zet(zetten);
+    let suggestie = suggereer_zetten(zetten);
     assert_eq!(
         suggestie,
-        Some(Zet {
+        vec![Zet {
             x: 0,
             y: 2,
             speler: Speler::X
-        })
+        }]
     );
 }
 
@@ -93,13 +93,13 @@ fn blokkerende_zet_wordt_gesuggereerd() {
         },
     ];
 
-    let suggestie = suggereer_zet(zetten);
+    let suggestie = suggereer_zetten(zetten);
     assert_eq!(
         suggestie,
-        Some(Zet {
+        vec![Zet {
             x: 0,
             y: 2,
             speler: Speler::O
-        })
+        }]
     );
 }
