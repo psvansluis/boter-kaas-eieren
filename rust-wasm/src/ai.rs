@@ -11,7 +11,7 @@ type StrategieFn = fn(&BoterKaasEieren) -> Box<dyn Iterator<Item = Zet> + '_>;
 const STRATEGIEEN: &[StrategieFn] = &[
     winnende_zetten,
     voorkom_winnende_zetten,
-    // |s| Box::new(vorkende_zetten(s)),
+    vorkende_zetten,
     // |s| Box::new(voorkom_vorkende_zetten(s)),
     // |s| Box::new(midden(s)),
     // |s| Box::new(tegenovergestelde_hoek(s)),
@@ -42,10 +42,13 @@ fn voorkom_winnende_zetten(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Ze
     Box::new(voorkom_zetten(spel, winnende_zetten))
 }
 
-// fn vorkende_zetten(_spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_ {
-//     // if the player with the turn has moves that create a fork, return those moves
-//     Vec::new()
-// }
+fn vorkende_zetten(spel: &BoterKaasEieren) -> Box<dyn Iterator<Item = Zet> + '_> {
+    Box::new(speelbare_zetten(spel).filter(move |zet| {
+        voorkom_winnende_zetten(&speel_zet(spel, zet).expect("valide zet"))
+            .nth(1)
+            .is_some()
+    }))
+}
 
 // fn voorkom_vorkende_zetten(_spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_ {
 //     // if the opponent has moves that create a fork, return the moves that block it
