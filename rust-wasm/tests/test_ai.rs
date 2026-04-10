@@ -190,3 +190,91 @@ fn midden_zet_wordt_gesuggereerd() {
     }];
     assert_eq!(suggestie, verwachte_suggesties);
 }
+
+#[test]
+fn hoek_zet_wordt_gesuggereerd() {
+    let zetten = vec![Zet {
+        x: 1,
+        y: 1,
+        speler: Speler::X,
+    }];
+    let suggestie = suggereer_zetten(zetten);
+    let verwachte_suggesties = vec![
+        Zet {
+            x: 0,
+            y: 0,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 2,
+            y: 0,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 0,
+            y: 2,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 2,
+            y: 2,
+            speler: Speler::O,
+        },
+    ];
+    assert_eq!(suggestie, verwachte_suggesties);
+}
+
+#[test]
+fn zijde_zet_wordt_gesuggereerd() {
+    let zetten = vec![
+        Zet {
+            x: 1,
+            y: 1,
+            speler: Speler::X,
+        },
+        Zet {
+            x: 2,
+            y: 2,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 0,
+            y: 0,
+            speler: Speler::X,
+        },
+        Zet {
+            x: 2,
+            y: 0,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 0,
+            y: 2,
+            speler: Speler::X,
+        },
+        Zet {
+            x: 0,
+            y: 1,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 2,
+            y: 1,
+            speler: Speler::X,
+        },
+    ];
+    let suggestie = suggereer_zetten(zetten);
+    let verwachte_suggesties = vec![
+        Zet {
+            x: 1,
+            y: 0,
+            speler: Speler::O,
+        },
+        Zet {
+            x: 1,
+            y: 2,
+            speler: Speler::O,
+        },
+    ];
+    assert_eq!(suggestie, verwachte_suggesties);
+}
