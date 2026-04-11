@@ -16,20 +16,23 @@ const STRATEGIEEN: &[StrategieFn] = &[
     voorkom_vorkende_zetten,
     midden,
     lege_hoeken,
-    lege_zijde,
+    lege_zijden,
 ];
 
 /// Suggereert de beste zetten voor de huidige speler, gegeven een spel.
-/// De strategieën worden in volgorde toegepast, dus als er een winnende zet is, zal die altijd als eerste worden gesuggereerd.
-/// Als er geen enkele zet mogelijk is (bijv. bij een ongeldig spel of een gelijkspel), geeft deze functie een lege lijst terug.
+/// De strategieën worden in volgorde toegepast,
+/// dus als er een winnende zet is,
+/// zal die altijd als eerste worden gesuggereerd.
+/// Als er geen enkele zet mogelijk is (bijv. bij een onspeelbaar spel),
+/// geeft deze functie een lege lijst terug.
 ///
 /// # Voorbeeld
 ///
 /// ```
-/// use rust_wasm::{
-///     model::{BoterKaasEieren, Cel, Spelstatus, Speler, Zet},
-/// };
-/// use rust_wasm::ai::perfecte_zetten;
+/// # use rust_wasm::{
+/// #     model::{BoterKaasEieren, Cel, Spelstatus, Speler, Zet},
+/// # };
+/// # use rust_wasm::ai::perfecte_zetten;
 /// let spel = BoterKaasEieren {
 ///     bord: [
 ///         [Cel::Leeg, Cel::Leeg, Cel::Leeg],
@@ -40,7 +43,7 @@ const STRATEGIEEN: &[StrategieFn] = &[
 ///         speler_met_beurt: Speler::X,
 ///     },
 /// };
-/// let suggesties = perfecte_zetten(&spel).collect::<Vec<_>>();
+/// let suggesties = perfecte_zetten(&spel).collect::<Vec<Zet>>();
 /// assert_eq!(suggesties, vec![Zet { x: 1, y: 1, speler: Speler::X }]);
 /// ```
 pub fn perfecte_zetten(spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_ {
@@ -66,7 +69,12 @@ fn voorkom_winnende_zetten(spel: &BoterKaasEieren) -> ZetIterator<'_> {
 }
 
 fn vorkende_zetten(spel: &BoterKaasEieren) -> ZetIterator<'_> {
-    filter_op_resultaat(spel, |s| voorkom_winnende_zetten(s).nth(1).is_some())
+    filter_op_resultaat(spel, |s| {
+        voorkom_winnende_zetten(s)
+            // een vorkende zet is een zet die minstens 2 winstblokkerende zetten voor de volgende speler creëert
+            .nth(1)
+            .is_some()
+    })
 }
 
 fn voorkom_vorkende_zetten(spel: &BoterKaasEieren) -> ZetIterator<'_> {
@@ -81,11 +89,16 @@ fn lege_hoeken(spel: &BoterKaasEieren) -> ZetIterator<'_> {
     filter_coordinaten(spel, &[(0, 2), (0, 0), (2, 0), (2, 2)])
 }
 
-fn lege_zijde(spel: &BoterKaasEieren) -> ZetIterator<'_> {
+fn lege_zijden(spel: &BoterKaasEieren) -> ZetIterator<'_> {
     filter_coordinaten(spel, &[(0, 1), (1, 0), (1, 2), (2, 1)])
 }
 
 // helpers
+
+/// Genereert zetten die een bepaalde strategie voorkomen
+/// door de beurt te geven aan de tegenstander.
+/// Bijvoorbeeld, als `te_voorkomen` de winnende zetten van de tegenstander genereert,
+/// zal deze functie zetten genereren die voorkomen dat de tegenstander wint in de volgende beurt.
 fn voorkom_zetten(spel: &BoterKaasEieren, te_voorkomen: StrategieFn) -> ZetIterator<'_> {
     let huidige_speler = match spel.spelstatus {
         Spelstatus::SpelBezig { speler_met_beurt } => speler_met_beurt,
@@ -112,16 +125,19 @@ fn voorkom_zetten(spel: &BoterKaasEieren, te_voorkomen: StrategieFn) -> ZetItera
     }))
 }
 
+/// Genereert speelbare zetten die, wanneer gespeeld,
+/// resulteren in een spelstatus die voldoet aan het gegeven predicaat.
 fn filter_op_resultaat<'a>(
     spel: &'a BoterKaasEieren,
     predicaat: impl Fn(&BoterKaasEieren) -> bool + 'a,
 ) -> ZetIterator<'a> {
-    Box::new(speelbare_zetten(spel).filter(move |zet| {
+    filter_zetten(spel, move |zet| {
         let spel_na_zet = speel_zet(spel, zet).expect("valide zet");
         predicaat(&spel_na_zet)
-    }))
+    })
 }
 
+/// Genereert speelbare zetten die voldoen aan het gegeven predicaat.
 fn filter_zetten<'a>(
     spel: &'a BoterKaasEieren,
     predicaat: impl Fn(&Zet) -> bool + 'a,
@@ -129,6 +145,7 @@ fn filter_zetten<'a>(
     Box::new(speelbare_zetten(spel).filter(predicaat))
 }
 
+/// Genereert zetten die overeenkomen met een van de gegeven coördinaten (x, y).
 fn filter_coordinaten<'a>(
     spel: &'a BoterKaasEieren,
     coordinaten: &'a [(usize, usize)],
