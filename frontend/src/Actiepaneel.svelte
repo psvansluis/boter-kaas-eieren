@@ -1,12 +1,18 @@
 <script lang="ts">
   import Actieknop from "./Actieknop.svelte";
+  import { kiesWillekeurig } from "./lib/kiesWillekeurig";
   import type { Zet } from "./lib/wasm/rust_wasm";
   import type { ZettenTransformatie, ZettenUpdater } from "./Spel.svelte";
 
   const {
     zetten,
     updateZetten,
-  }: { zetten: Zet[]; updateZetten: ZettenUpdater } = $props();
+    suggesties,
+  }: {
+    zetten: Zet[];
+    updateZetten: ZettenUpdater;
+    suggesties: Zet[];
+  } = $props();
 
   type Actie = {
     label: string;
@@ -28,7 +34,17 @@
       disabled: zetten.length < 2,
       sneltoets: "n",
     },
+    {
+      label: "Suggereer zet",
+      onclick: (zetten: Zet[]) => {
+        const suggestie = kiesWillekeurig(suggesties);
+        return suggestie ? [...zetten, suggestie] : zetten;
+      },
+      disabled: suggesties.length < 1,
+      sneltoets: "s",
+    },
   ]);
+
   const knoppen = $derived(
     acties.map((actie) => ({
       ...actie,

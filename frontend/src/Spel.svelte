@@ -3,7 +3,7 @@
   export type ZettenUpdater = (fn: ZettenTransformatie) => void;
   import Bord from "./Bord.svelte";
   import Errorindicator from "./Errorindicator.svelte";
-  import type { Speelbaar } from "./lib/wasm";
+  import type { Speelbaar, Suggereerder } from "./lib/wasm";
 
   import { match } from "./lib/match";
   import type {
@@ -14,11 +14,13 @@
   } from "./lib/wasm/rust_wasm";
   import Statusindicator from "./Statusindicator.svelte";
   import Actiepaneel from "./Actiepaneel.svelte";
-  const { wasm }: { wasm: Speelbaar } = $props();
+  const { wasm }: { wasm: Speelbaar & Suggereerder } = $props();
   let zetten: Zet[] = $state([]);
   const spel: WasmResultaat<BoterKaasEieren, OngeldigeZet> = $derived(
     wasm.speel_boter_kaas_eieren(zetten),
   );
+  const suggesties = $derived(wasm.suggereer_zetten(zetten));
+
   const updateZetten: ZettenUpdater = (fn) => {
     zetten = fn(zetten);
   };
@@ -37,5 +39,5 @@
     <Bord spel={spel.data} {updateZetten} />
     <Statusindicator spelstatus={spel.data.spelstatus} />
   {/if}
-  <Actiepaneel {zetten} {updateZetten} />
+  <Actiepaneel {zetten} {updateZetten} {suggesties} />
 </section>
