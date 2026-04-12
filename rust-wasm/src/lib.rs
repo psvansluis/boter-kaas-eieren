@@ -1,5 +1,6 @@
 pub mod ai;
 mod domein;
+mod iterator_ext;
 pub mod model;
 pub mod wasm_resultaat;
 

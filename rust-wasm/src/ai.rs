@@ -2,6 +2,7 @@ use core::iter::{empty, once};
 
 use crate::{
     domein::{speel_zet, volgende_speler},
+    iterator_ext::IteratorExt,
     model::{BoterKaasEieren, Spelstatus, Zet},
     speelbare_zetten,
 };
@@ -50,9 +51,9 @@ pub fn perfecte_zetten(spel: &BoterKaasEieren) -> impl Iterator<Item = Zet> + '_
     STRATEGIEEN
         .iter()
         .find_map(|strategie| {
-            let mut zetten = strategie(spel).peekable();
-            zetten.peek()?;
-            Some(Box::new(zetten) as ZetIterator<'_>)
+            strategie(spel)
+                .niet_leeg()
+                .map(|iter| Box::new(iter) as ZetIterator<'_>)
         })
         // Als er geen enkele zet mogelijk is (bijv. gelijkspel), geven we een lege iterator
         .unwrap_or_else(|| Box::new(empty()))
@@ -78,7 +79,20 @@ fn vorkende_zetten(spel: &BoterKaasEieren) -> ZetIterator<'_> {
 }
 
 fn voorkom_vorkende_zetten(spel: &BoterKaasEieren) -> ZetIterator<'_> {
-    voorkom_zetten(spel, vorkende_zetten)
+    let zetten = || voorkom_zetten(spel, vorkende_zetten);
+    zetten()
+        // als er meerdere vorkende zetten moeten worden voorkomen,
+        // dan is de perfecte zet een die de tegenstander dwingt tot een blokkerende zet
+        .filter({
+            move |zet| {
+                voorkom_winnende_zetten(&speel_zet(spel, zet).expect("valide"))
+                    .niet_leeg()
+                    .is_some()
+            }
+        })
+        .niet_leeg()
+        .map(|iter| Box::new(iter) as ZetIterator<'_>)
+        .unwrap_or_else(|| Box::new(zetten()))
 }
 
 fn midden(spel: &BoterKaasEieren) -> ZetIterator<'_> {

@@ -5,7 +5,7 @@ use crate::DIMENSIE;
 
 pub type Bord = [[Cel; DIMENSIE]; DIMENSIE];
 
-#[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, Eq, PartialEq, Hash)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 #[serde(tag = "type", content = "data")]
 pub enum Speler {
@@ -30,7 +30,7 @@ pub enum Spelstatus {
     SpelBezig { speler_met_beurt: Speler },
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Tsify, Debug, PartialEq, Eq, Hash)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct Zet {
     pub x: usize,
